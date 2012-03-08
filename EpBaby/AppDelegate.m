@@ -10,8 +10,14 @@
 
 #import "AppDelegate.h"
 #import "GameConfig.h"
-#import "HelloWorldLayer.h"
 #import "RootViewController.h"
+#import "PauseLayer.h"
+#import "StartMenuScene.h"
+#import "GameOrStoryScene.h"
+
+#define HGameLayer 10001
+#define HControlLayer 10002
+#define HPauseLayer 10003
 
 @implementation AppDelegate
 
@@ -89,7 +95,7 @@
 #endif
 	
 	[director setAnimationInterval:1.0/60];
-	[director setDisplayFPS:YES];
+//	[director setDisplayFPS:YES];
 	
 	
 	// make the OpenGLView a child of the view controller
@@ -110,7 +116,7 @@
 	[self removeStartupFlicker];
 	
 	// Run the intro Scene
-	[[CCDirector sharedDirector] runWithScene: [HelloWorldLayer scene]];
+	[[CCDirector sharedDirector] runWithScene:[GameOrStoryScene  node]];
 }
 
 
@@ -119,7 +125,9 @@
 }
 
 - (void)applicationDidBecomeActive:(UIApplication *)application {
-	[[CCDirector sharedDirector] resume];
+	if ([[[CCDirector sharedDirector] runningScene] getChildByTag:HGameLayer] == nil) {
+        [[CCDirector sharedDirector] resume];
+    }
 }
 
 - (void)applicationDidReceiveMemoryWarning:(UIApplication *)application {
@@ -127,6 +135,15 @@
 }
 
 -(void) applicationDidEnterBackground:(UIApplication*)application {
+    if ([[[CCDirector sharedDirector] runningScene] isKindOfClass:[GameScene class]])
+    {
+        if ([[[[CCDirector sharedDirector] runningScene] getChildByTag:HGameLayer]  isKindOfClass:[GameLayer class]])
+        {
+            NSLog(@"is gamelayer");
+            GameLayer *gl = (GameLayer *)[[[CCDirector sharedDirector] runningScene] getChildByTag:HGameLayer];
+            [gl gamePause];
+        }
+    }
 	[[CCDirector sharedDirector] stopAnimation];
 }
 
